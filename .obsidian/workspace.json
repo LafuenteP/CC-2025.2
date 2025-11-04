@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Segurança/Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança.md",
+                "file": "Segurança/Criptografia.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança"
+              "title": "Criptografia"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Segurança/Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança.md",
+                "file": "Segurança/Criptografia.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança"
+              "title": "Backlinks for Criptografia"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Segurança/Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança.md",
+                "file": "Segurança/Criptografia.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança"
+              "title": "Outgoing links from Criptografia"
             }
           },
           {
@@ -142,13 +142,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Segurança/Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança.md",
+                "file": "Segurança/Criptografia.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança"
+              "title": "Outline of Criptografia"
             }
           }
         ]
@@ -171,6 +171,11 @@
   },
   "active": "26855aa5643c9681",
   "lastOpenFiles": [
+    "Segurança/Imagens/Sistema de Criptografia.png",
+    "Segurança/Prova 1 Revisão.md",
+    "Segurança/Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança.md",
+    "Desenvolvimento_De_Software_Para_Persistencia/Aula1/venv/Lib/site-packages/httpcore-1.0.9.dist-info/licenses/LICENSE.md",
+    "Segurança/Criptografia.md",
     "IA/ImplementacoesSalaDeAula/Cópia_de_Lab03_Lafuente.ipynb",
     "IA/ImplementacoesSalaDeAula/Lab03_Lafuente_Busca_Custo_Uniforme.ipynb",
     "IA/ImplementacoesSalaDeAula",
@@ -179,8 +184,6 @@
     "IA/Lab03_Lafuente_Busca_Custo_Uniforme.ipynb",
     "IA",
     "Nova pasta",
-    "Segurança/Imagens/Mecanismos de Segurança.png",
-    "Segurança/Prova 1 Revisão.md",
-    "Segurança/Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança.md"
+    "Segurança/Imagens/Mecanismos de Segurança.png"
   ]
 }

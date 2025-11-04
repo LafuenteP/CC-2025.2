@@ -2,7 +2,7 @@
 - Proteção contra dados transmitidos contra ataques passivos.
 - Impedir pessoas mal intencionadas de ler/modificar mensagens para outro usuários
 - Ataque: Man-in-the-Middle
-- ==Segurança: Criptografia das mensagens==
+- ==Segurança: [[Criptografia]] das mensagens==
 
 ### Autenticação - 
 - Garantia que a comunicação é autêntica
