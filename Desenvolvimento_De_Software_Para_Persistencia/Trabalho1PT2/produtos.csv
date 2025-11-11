@@ -1,37 +1,35 @@
 id,nome,categoria,preco
-1,Officiis eaque,Eletrônicos,573.11
-2,Sit inventore,Esportes,918.51
-3,Sequi labore,Móveis,659.09
-4,Veritatis omnis,Roupas,900.67
-5,Nisi eum,Roupas,917.14
-6,In dignissimos,Alimentos,118.14
-7,Id esse,Eletrônicos,66.45
-8,Nesciunt facere,Móveis,792.26
-9,A facere,Esportes,440.71
-10,Occaecati natus,Móveis,486.36
-11,Nihil a,Roupas,618.73
-12,Accusamus cupiditate,Alimentos,835.81
-13,Consequatur nam,Ferramentas,463.45
-14,Laboriosam nam,Roupas,283.15
-15,Quis at,Livros,61.26
-16,Maxime illum,Alimentos,601.22
-17,Labore nobis,Ferramentas,713.18
-18,Delectus natus,Ferramentas,259.05
-19,Eum autem,Ferramentas,605.77
-20,Corrupti nihil,Móveis,67.91
-21,Cumque sunt,Livros,278.47
-22,Odio libero,Alimentos,947.19
-23,Quod accusamus,Móveis,658.32
-24,Est voluptatibus,Ferramentas,524.86
-25,Inventore quisquam,Ferramentas,570.44
-26,Dolores totam,Móveis,493.33
-27,Error exercitationem,Esportes,52.65
-28,Reiciendis in,Móveis,27.28
-29,Ipsum repellendus,Ferramentas,372.61
-30,Mollitia autem,Livros,816.81
-31,Cupiditate deleniti,Roupas,254.81
-32,Libero quisquam,Esportes,963.28
-33,Tempora distinctio,Roupas,734.5
-34,Vel fugiat,Roupas,915.66
-35,Iure non,Alimentos,978.51
-36,Produto Teste via Cliente,Testes,99.99
+1,Smartphone Galaxy S23,Eletrônicos,883.83
+2,Notebook Dell Inspiron 15,Eletrônicos,572.81
+3,Smart TV LG 50 polegadas 4K,Eletrônicos,87.98
+4,Fone de Ouvido Bluetooth Sony WH-1000XM5,Eletrônicos,787.78
+5,Mouse sem Fio Logitech MX Master 3,Eletrônicos,441.73
+6,Teclado Mecânico Redragon Kumara,Eletrônicos,560.4
+7,Monitor Gamer AOC Hero 27'' 144Hz,Eletrônicos,951.86
+8,Camiseta Básica Algodão (Branca),Roupas,626.36
+9,Calça Jeans Masculina Slim,Roupas,263.2
+10,Tênis de Corrida Nike Pegasus 40,Roupas,706.99
+11,Jaqueta Corta-Vento Impermeável,Roupas,336.48
+12,Vestido Floral de Verão,Roupas,992.24
+13,Moletom com Capuz (Preto),Roupas,176.42
+14,Arroz Integral 1kg,Alimentos,375.27
+15,Feijão Carioca 1kg,Alimentos,917.48
+16,Azeite de Oliva Extra Virgem 500ml,Alimentos,673.53
+17,Café em Grãos Especial 250g,Alimentos,756.45
+18,Chocolate Amargo 70% Cacau,Alimentos,182.57
+19,Furadeira de Impacto Bosch 650W,Ferramentas,263.62
+20,Kit de Chaves de Fenda (8 peças),Ferramentas,341.39
+21,Alicate Universal Tramontina,Ferramentas,364.34
+22,Trena a Laser 40m,Ferramentas,338.47
+23,Bicicleta Aro 29 Mountain Bike,Esportes,361.36
+24,Bola de Futebol Oficial (Campo),Esportes,911.75
+25,Tapete de Yoga em PVC,Esportes,500.07
+26,Kit Halteres 10kg,Esportes,516.42
+27,Livro: O Hobbit - J.R.R. Tolkien,Livros,406.49
+28,Livro: A Sutil Arte de Ligar o F*da-se,Livros,102.02
+29,Livro: 1984 - George Orwell,Livros,463.23
+30,Cadeira de Escritório Ergonômica,Móveis,309.26
+31,Mesa de Jantar 4 Lugares (Madeira),Móveis,816.7
+32,Sofá Retrátil 3 Lugares (Cinza),Móveis,228.27
+33,Guarda-Roupa Casal 6 Portas,Móveis,710.02
+34,Estante para Livros (Branca),Móveis,334.89

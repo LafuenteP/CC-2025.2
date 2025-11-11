@@ -3,32 +3,44 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import threading
 import os
-from faker import Faker # Biblioteca para gerar dados falsos
 import random
+# --- Importação Adicional para CORS ---
+from fastapi.middleware.cors import CORSMiddleware
 
 # --- Configuração Inicial ---
 
 # 1. Inicializa o FastAPI
 app = FastAPI()
 
-# 2. Define o arquivo CSV que servirá como nosso banco de dados
+# --- Configuração do CORS ---
+# Precisamos permitir que o navegador (rodando o index.html)
+# acesse a API (rodando no 127.0.0.1)
+
+origins = [
+    "*", 
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,       # Quais origens podem se conectar
+    allow_credentials=True,      # Permite cookies (se houver)
+    allow_methods=["*"],         # Permite todos os métodos (GET, POST, PUT, DELETE)
+    allow_headers=["*"],         # Permite todos os cabeçalhos
+)
+
+
 PRODUTOS_CSV = "produtos.csv"
 
-# 3. Cria um Lock (cadeado) para controlar o acesso concorrente ao arquivo CSV
-# Isso impede que duas requisições tentem escrever no arquivo ao mesmo tempo,
-# o que causaria corrupção de dados.
+# impede que duas requisições tentem escrever no arquivo ao mesmo tempo
 db_lock = threading.Lock()
 
-# 4. Define o "schema" do nosso produto usando Pydantic
 class Produto(BaseModel):
     nome: str
     categoria: str
     preco: float
 
-# 5. Variável global para manter o último ID (será carregado do CSV)
 ultimo_id = 0
 
-# --- Funções Auxiliares de Banco de Dados (CSV) ---
 
 def carregar_dados():
     """
@@ -39,13 +51,9 @@ def carregar_dados():
     try:
         df = pd.read_csv(PRODUTOS_CSV)
         if not df.empty:
-            # Garante que a coluna 'id' seja do tipo inteiro
             df['id'] = df['id'].astype(int)
-            # Atualiza o último ID com o maior ID existente no arquivo
-            # *** CORREÇÃO AQUI: Converte de numpy.int64 para int nativo ***
             ultimo_id = int(df['id'].max()) 
         else:
-            # Se o arquivo estiver vazio, mas existir
             ultimo_id = 0
             df = pd.DataFrame(columns=["id", "nome", "categoria", "preco"])
             
@@ -61,10 +69,7 @@ def carregar_dados():
     return df
 
 def salvar_dados(df: pd.DataFrame):
-    """
-    Salva o DataFrame de volta no arquivo CSV.
-    Esta função DEVE ser chamada DENTRO de um 'with db_lock:'
-    """
+
     df.to_csv(PRODUTOS_CSV, index=False)
 
 @app.on_event("startup")
@@ -83,22 +88,64 @@ def popular_db_inicial():
             # Limpa o dataframe para recomeçar (caso tenha dados parciais)
             df = pd.DataFrame(columns=["id", "nome", "categoria", "preco"])
             
-            fake = Faker('pt_BR') # Gera dados em português
-            categorias = ['Eletrônicos', 'Roupas', 'Alimentos', 'Ferramentas', 'Esportes', 'Livros', 'Móveis']
+
+            
+            produtos = [
+                {"nome": "Smartphone Galaxy S23", "categoria": "Eletrônicos"},
+                {"nome": "Notebook Dell Inspiron 15", "categoria": "Eletrônicos"},
+                {"nome": "Smart TV LG 50 polegadas 4K", "categoria": "Eletrônicos"},
+                {"nome": "Fone de Ouvido Bluetooth Sony WH-1000XM5", "categoria": "Eletrônicos"},
+                {"nome": "Mouse sem Fio Logitech MX Master 3", "categoria": "Eletrônicos"},
+                {"nome": "Teclado Mecânico Redragon Kumara", "categoria": "Eletrônicos"},
+                {"nome": "Monitor Gamer AOC Hero 27'' 144Hz", "categoria": "Eletrônicos"},
+                
+                {"nome": "Camiseta Básica Algodão (Branca)", "categoria": "Roupas"},
+                {"nome": "Calça Jeans Masculina Slim", "categoria": "Roupas"},
+                {"nome": "Tênis de Corrida Nike Pegasus 40", "categoria": "Roupas"},
+                {"nome": "Jaqueta Corta-Vento Impermeável", "categoria": "Roupas"},
+                {"nome": "Vestido Floral de Verão", "categoria": "Roupas"},
+                {"nome": "Moletom com Capuz (Preto)", "categoria": "Roupas"},
+                
+                {"nome": "Arroz Integral 1kg", "categoria": "Alimentos"},
+                {"nome": "Feijão Carioca 1kg", "categoria": "Alimentos"},
+                {"nome": "Azeite de Oliva Extra Virgem 500ml", "categoria": "Alimentos"},
+                {"nome": "Café em Grãos Especial 250g", "categoria": "Alimentos"},
+                {"nome": "Chocolate Amargo 70% Cacau", "categoria": "Alimentos"},
+                
+                {"nome": "Furadeira de Impacto Bosch 650W", "categoria": "Ferramentas"},
+                {"nome": "Kit de Chaves de Fenda (8 peças)", "categoria": "Ferramentas"},
+                {"nome": "Alicate Universal Tramontina", "categoria": "Ferramentas"},
+                {"nome": "Trena a Laser 40m", "categoria": "Ferramentas"},
+            
+                {"nome": "Bicicleta Aro 29 Mountain Bike", "categoria": "Esportes"},
+                {"nome": "Bola de Futebol Oficial (Campo)", "categoria": "Esportes"},
+                {"nome": "Tapete de Yoga em PVC", "categoria": "Esportes"},
+                {"nome": "Kit Halteres 10kg", "categoria": "Esportes"},
+            
+                {"nome": "Livro: O Hobbit - J.R.R. Tolkien", "categoria": "Livros"},
+                {"nome": "Livro: A Sutil Arte de Ligar o F*da-se", "categoria": "Livros"},
+                {"nome": "Livro: 1984 - George Orwell", "categoria": "Livros"},
+                
+                {"nome": "Cadeira de Escritório Ergonômica", "categoria": "Móveis"},
+                {"nome": "Mesa de Jantar 4 Lugares (Madeira)", "categoria": "Móveis"},
+                {"nome": "Sofá Retrátil 3 Lugares (Cinza)", "categoria": "Móveis"},
+                {"nome": "Guarda-Roupa Casal 6 Portas", "categoria": "Móveis"},
+                {"nome": "Estante para Livros (Branca)", "categoria": "Móveis"}
+            ] # Total: 35 produtos
+            
             novos_produtos = []
             
-            # --- INÍCIO DA CORREÇÃO (Restaurando a lógica do loop) ---
-            for i in range(1, 36): # 35 registros
-                # Esta é a lógica correta para criar produtos falsos
-                novo_produto = {
+            for i, produto in enumerate(produtos, start=1):
+                novo_produto_com_preco = {
                     "id": i,
-                    "nome": fake.unique.word().capitalize() + " " + fake.word(),
-                    "categoria": random.choice(categorias),
-                    "preco": round(random.uniform(10.5, 999.9), 2)
+                    "nome": produto["nome"],
+                    "categoria": produto["categoria"],
+                    "preco": round(random.uniform(10.5, 999.9), 2) #preço aleatório
                 }
-                novos_produtos.append(novo_produto) # Adiciona à lista
+                novos_produtos.append(novo_produto_com_preco)
 
-            # Cria o DataFrame de novos produtos *fora* do loop
+
+     
             df_novos = pd.DataFrame(novos_produtos)
             df_final = pd.concat([df, df_novos], ignore_index=True)
             
@@ -110,26 +157,24 @@ def popular_db_inicial():
             print(f"Banco de dados populado. Total de {len(df_final)} registros. Último ID: {ultimo_id}")
         else:
             print(f"Banco de dados já está populado com {len(df)} registros. Último ID: {ultimo_id}")
-# --- FIM DA CORREÇÃO ---
 
 
-# --- Endpoints da API (CRUD) ---
+
+#API (CRUD)
 
 @app.post("/produtos", response_model=dict)
 def cadastrar_produto(produto: Produto):
     """
     Cadastra um novo produto. Operação de escrita (usa lock).
     """
-    # --- INÍCIO DA CORREÇÃO (Restaurando a lógica de adicionar um produto) ---
     with db_lock:
         df = carregar_dados()
         
         global ultimo_id
         ultimo_id += 1
         
-        # Esta é a lógica correta para adicionar UM produto
+        #adicionar UM produto
         novo_produto = {
-            # Garante que os tipos são nativos do Python
             "id": int(ultimo_id), 
             "nome": produto.nome,
             "categoria": produto.categoria,
@@ -142,7 +187,7 @@ def cadastrar_produto(produto: Produto):
         salvar_dados(df_final)
         
         return novo_produto
-    # --- FIM DA CORREÇÃO ---
+    
 
 @app.get("/produtos")
 def listar_produtos():
@@ -165,7 +210,6 @@ def obter_produto(id: int):
         if produto.empty:
             raise HTTPException(status_code=404, detail="Produto não encontrado")
         
-        # *** CORREÇÃO AQUI: Converte tipos Numpy para nativos antes de retornar ***
         produto_dict = produto.to_dict(orient="records")[0]
         produto_dict['id'] = int(produto_dict['id'])
         produto_dict['preco'] = float(produto_dict['preco'])
@@ -190,8 +234,6 @@ def atualizar_produto(id: int, produto: Produto):
         
         salvar_dados(df)
         
-        # Retorna o produto atualizado
-        # *** CORREÇÃO AQUI: Converte tipos Numpy para nativos antes de retornar ***
         produto_atualizado_dict = df[df["id"] == id].to_dict(orient="records")[0]
         produto_atualizado_dict['id'] = int(produto_atualizado_dict['id'])
         produto_atualizado_dict['preco'] = float(produto_atualizado_dict['preco'])
@@ -218,7 +260,7 @@ def apagar_produto(id: int):
         
         return {"mensagem": "Produto removido com sucesso"}
 
-# --- Endpoints de Estatísticas (Novos Serviços) ---
+
 
 @app.get("/produtos/stats/maior-preco")
 def obter_maior_preco():
@@ -234,7 +276,6 @@ def obter_maior_preco():
         idx_max = df['preco'].idxmax()
         produto_mais_caro = df.loc[idx_max]
         
-        # *** CORREÇÃO AQUI: Converte tipos Numpy para nativos antes de retornar ***
         produto_dict = produto_mais_caro.to_dict()
         produto_dict['id'] = int(produto_dict['id'])
         produto_dict['preco'] = float(produto_dict['preco'])
@@ -254,7 +295,6 @@ def obter_menor_preco():
         idx_min = df['preco'].idxmin()
         produto_mais_barato = df.loc[idx_min]
         
-        # *** CORREÇÃO AQUI: Converte tipos Numpy para nativos antes de retornar ***
         produto_dict = produto_mais_barato.to_dict()
         produto_dict['id'] = int(produto_dict['id'])
         produto_dict['preco'] = float(produto_dict['preco'])
@@ -271,7 +311,7 @@ def obter_media_preco():
             return {"media_preco": 0.0}
             
         media = df['preco'].mean()
-        # *** CORREÇÃO AQUI: Converte de numpy.float64 para float nativo ***
+
         return {"media_preco": float(round(media, 2))}
 
 @app.get("/produtos/stats/acima-media")
@@ -303,8 +343,3 @@ def obter_produtos_abaixo_media():
         produtos_abaixo_media = df[df['preco'] < media]
         
         return produtos_abaixo_media.to_dict(orient="records")
-
-# --- Para rodar a aplicação ---
-# Salve como main.py e execute no terminal:
-# 1. pip install fastapi uvicorn pandas faker
-# 2. uvicorn main:app --reload
