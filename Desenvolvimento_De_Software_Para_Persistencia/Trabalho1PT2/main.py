@@ -4,12 +4,10 @@ from pydantic import BaseModel
 import threading
 import os
 import random
-# --- Importação Adicional para CORS ---
 from fastapi.middleware.cors import CORSMiddleware
 
-# --- Configuração Inicial ---
 
-# 1. Inicializa o FastAPI
+
 app = FastAPI()
 
 # --- Configuração do CORS ---
