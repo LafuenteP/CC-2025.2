@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Produtos</title>
+    <!-- Carrega o Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fonte Inter (padrão do Tailwind) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* bg-gray-100 */
+        }
+        /* Estilo para o JSON de resultados */
+        pre {
+            background-color: #1f2937; /* bg-gray-800 */
+            color: #d1d5db; /* text-gray-300 */
+            padding: 1rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            overflow-x: auto;
+            font-size: 0.875rem; /* text-sm */
+        }
+        /* Botões de ação pequenos */
+        .btn-action {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem; /* text-xs */
+            font-weight: 500;
+            border-radius: 0.375rem; /* rounded-md */
+            transition: all 0.2s;
+        }
+        .btn-edit {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+        }
+        .btn-edit:hover {
+            background-color: #2563eb; /* bg-blue-600 */
+        }
+        .btn-delete {
+            background-color: #ef4444; /* bg-red-500 */
+            color: white;
+        }
+        .btn-delete:hover {
+            background-color: #dc2626; /* bg-red-600 */
+        }
+        .btn-stat {
+            background-color: #10b981; /* bg-emerald-500 */
+            color: white;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.2s;
+        }
+        .btn-stat:hover {
+            background-color: #059669; /* bg-emerald-600 */
+        }
+        .btn-submit {
+             background-color: #6366f1; /* bg-indigo-500 */
+            color: white;
+            font-weight: 600;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.2s;
+        }
+        .btn-submit:hover {
+            background-color: #4f46e5; /* bg-indigo-600 */
+        }
+        .btn-cancel {
+             background-color: #6b7280; /* bg-gray-500 */
+            color: white;
+            font-weight: 500;
+            padding: 0.6rem 1.5rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.2s;
+        }
+        .btn-cancel:hover {
+            background-color: #4b5563; /* bg-gray-600 */
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Coluna da Esquerda: Formulário e Estatísticas -->
+        <div class="lg:col-span-1 space-y-8">
+            
+            <!-- Formulário de Produto -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 id="form-titulo" class="text-2xl font-bold text-gray-800 mb-6">Cadastrar Produto</h2>
+                <form id="form-produto" class="space-y-4">
+                    <!-- Campo oculto para guardar o ID durante a atualização -->
+                    <input type="hidden" id="produto-id" name="id">
+                    
+                    <div>
+                        <label for="nome" class="block text-sm font-medium text-gray-700">Nome</label>
+                        <input type="text" id="nome" name="nome" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="categoria" class="block text-sm font-medium text-gray-700">Categoria</label>
+                        <input type="text" id="categoria" name="categoria" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="preco" class="block text-sm font-medium text-gray-700">Preço (R$)</label>
+                        <input type="number" id="preco" name="preco" step="0.01" min="0" required
+                               class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div class="flex items-center gap-4 pt-2">
+                        <button type="submit" id="btn-submit" class="btn-submit">
+                            Cadastrar
+                        </button>
+                         <button type="button" id="btn-cancelar" class="btn-cancel" style="display: none;">
+                            Cancelar Edição
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Painel de Estatísticas -->
+            <div class="bg-white p-6 rounded-xl shadow-lg">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Estatísticas</h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="btn-stat" onclick="getStat('/produtos/stats/maior-preco')">Maior Preço</button>
+                    <button class="btn-stat" onclick="getStat('/produtos/stats/menor-preco')">Menor Preço</button>
+                    <button class="btn-stat" onclick="getStat('/produtos/stats/media-preco')">Média Preços</button>
+                    <button class="btn-stat" onclick="getStat('/produtos/stats/acima-media')">Acima da Média</button>
+                    <button class="btn-stat col-span-2" onclick="getStat('/produtos/stats/abaixo-media')">Abaixo da Média</button>
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-lg font-semibold text-gray-700 mb-2">Resultado:</h3>
+                    <pre id="resultado-stats" class="h-64"><code>Clique em um botão para ver o resultado...</code></pre>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Coluna da Direita: Lista de Produtos -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-lg">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Lista de Produtos</h2>
+            <p id="contador-produtos" class="text-sm text-gray-600 mb-4">Carregando...</p>
+            
+            <!-- Tabela de Produtos -->
+            <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-produtos" class="bg-white divide-y divide-gray-200">
+                        <!-- Linhas serão inseridas aqui via JavaScript -->
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                Carregando produtos...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const BASE_URL = "http://127.0.0.1:8000";
+        const form = document.getElementById('form-produto');
+        const formTitulo = document.getElementById('form-titulo');
+        const produtoIdInput = document.getElementById('produto-id');
+        const nomeInput = document.getElementById('nome');
+        const categoriaInput = document.getElementById('categoria');
+        const precoInput = document.getElementById('preco');
+        const btnSubmit = document.getElementById('btn-submit');
+        const btnCancelar = document.getElementById('btn-cancelar');
+        const tabelaProdutos = document.getElementById('tabela-produtos');
+        const contadorProdutos = document.getElementById('contador-produtos');
+        const resultadoStats = document.getElementById('resultado-stats');
+
+        // --- Funções Principais (CRUD) ---
+
+        /**
+         * Formata um número como moeda BRL.
+         */
+        function formatarPreco(preco) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(preco);
+        }
+        
+        /**
+         * Carrega e exibe todos os produtos na tabela.
+         */
+        async function carregarProdutos() {
+            try {
+                const response = await fetch(`${BASE_URL}/produtos`);
+                if (!response.ok) throw new Error('Falha ao carregar produtos.');
+                
+                const produtos = await response.json();
+                
+                // Limpa a tabela
+                tabelaProdutos.innerHTML = '';
+                
+                if (produtos.length === 0) {
+                    tabelaProdutos.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                                Nenhum produto cadastrado.
+                            </td>
+                        </tr>
+                    `;
+                    contadorProdutos.textContent = '0 produtos cadastrados.';
+                    return;
+                }
+
+                // Ordena por ID decrescente (novos primeiro)
+                produtos.sort((a, b) => b.id - a.id);
+
+                contadorProdutos.textContent = `${produtos.length} produtos cadastrados.`;
+
+                // Preenche a tabela
+                produtos.forEach(produto => {
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-gray-50';
+                    tr.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${produto.id}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${produto.nome}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${produto.categoria}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-medium">${formatarPreco(produto.preco)}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                            <button class="btn-action btn-edit" data-id="${produto.id}">Editar</button>
+                            <button class="btn-action btn-delete" data-id="${produto.id}">Apagar</button>
+                        </td>
+                    `;
+                    tabelaProdutos.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error('Erro ao carregar produtos:', error);
+                tabelaProdutos.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-red-500">
+                            Erro ao carregar dados da API. Verifique se o servidor está rodando.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        /**
+         * Reseta o formulário para o modo "Cadastrar".
+         */
+        function resetarFormulario() {
+            form.reset();
+            produtoIdInput.value = '';
+            formTitulo.textContent = 'Cadastrar Produto';
+            btnSubmit.textContent = 'Cadastrar';
+            btnCancelar.style.display = 'none';
+        }
+
+        /**
+         * Prepara o formulário para o modo "Editar".
+         */
+        async function prepararEdicao(id) {
+            try {
+                const response = await fetch(`${BASE_URL}/produtos/${id}`);
+                if (!response.ok) throw new Error('Falha ao buscar produto para edição.');
+                
+                const produto = await response.json();
+                
+                // Preenche o formulário
+                produtoIdInput.value = produto.id;
+                nomeInput.value = produto.nome;
+                categoriaInput.value = produto.categoria;
+                precoInput.value = produto.preco;
+                
+                // Ajusta UI do formulário
+                formTitulo.textContent = `Editando Produto #${produto.id}`;
+                btnSubmit.textContent = 'Atualizar';
+                btnCancelar.style.display = 'inline-block';
+                
+                // Rola a tela para o topo onde está o formulário
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                nomeInput.focus();
+
+            } catch (error) {
+                console.error('Erro ao preparar edição:', error);
+                alert('Não foi possível carregar os dados do produto para edição.');
+            }
+        }
+
+        /**
+         * Apaga um produto.
+         */
+        async function apagarProduto(id) {
+            // Pede confirmação
+            if (!confirm(`Tem certeza que deseja apagar o produto #${id}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${BASE_URL}/produtos/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) throw new Error('Falha ao apagar produto.');
+                
+                // Recarrega a lista
+                await carregarProdutos();
+                
+            } catch (error) {
+                console.error('Erro ao apagar produto:', error);
+                alert('Não foi possível apagar o produto.');
+            }
+        }
+
+        /**
+         * Manipulador de submit do formulário (Cria ou Atualiza).
+         */
+        async function handleFormSubmit(event) {
+            event.preventDefault(); // Impede o recarregamento da página
+            
+            const id = produtoIdInput.value;
+            const dadosProduto = {
+                nome: nomeInput.value,
+                categoria: categoriaInput.value,
+                preco: parseFloat(precoInput.value)
+            };
+
+            const isUpdating = id;
+            const url = isUpdating ? `${BASE_URL}/produtos/${id}` : `${BASE_URL}/produtos`;
+            const method = isUpdating ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dadosProduto)
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Falha ao salvar produto.');
+                }
+                
+                // Sucesso
+                resetarFormulario();
+                await carregarProdutos();
+
+            } catch (error) {
+                console.error('Erro ao salvar produto:', error);
+                alert(`Erro ao salvar: ${error.message}`);
+            }
+        }
+
+        // --- Funções de Estatísticas ---
+        
+        /**
+         * Busca e exibe o resultado de um endpoint de estatística.
+         */
+        async function getStat(endpoint) {
+            const codeElement = resultadoStats.querySelector('code');
+            codeElement.textContent = 'Carregando...';
+            
+            try {
+                const response = await fetch(`${BASE_URL}${endpoint}`);
+                if (!response.ok) throw new Error(`Falha ao buscar stat: ${endpoint}`);
+                
+                const data = await response.json();
+                
+                // Formata o JSON para exibição bonita
+                codeElement.textContent = JSON.stringify(data, null, 2);
+
+            } catch (error) {
+                console.error('Erro ao buscar estatística:', error);
+                codeElement.textContent = `Erro: ${error.message}`;
+                codeElement.style.color = '#ef4444'; // text-red-500
+            }
+        }
+
+        // --- Event Listeners ---
+
+        // Carrega produtos ao iniciar
+        document.addEventListener('DOMContentLoaded', carregarProdutos);
+
+        // Listener para o formulário
+        form.addEventListener('submit', handleFormSubmit);
+
+        // Listener para o botão Cancelar Edição
+        btnCancelar.addEventListener('click', resetarFormulario);
+
+        // Listeners para botões na tabela (Usando delegação de eventos)
+        tabelaProdutos.addEventListener('click', (event) => {
+            const target = event.target;
+            
+            // Botão Editar
+            if (target.classList.contains('btn-edit')) {
+                const id = target.dataset.id;
+                prepararEdicao(id);
+            }
+            
+            // Botão Apagar
+            if (target.classList.contains('btn-delete')) {
+                const id = target.dataset.id;
+                apagarProduto(id);
+            }
+        });
+
+    </script>
+
+</body>
+</html>
