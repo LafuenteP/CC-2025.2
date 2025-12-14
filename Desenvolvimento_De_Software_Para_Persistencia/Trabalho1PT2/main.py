@@ -18,6 +18,7 @@ origins = [
     "*", 
 ]
 
+#Permitindo conexões
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,       # Quais origens podem se conectar

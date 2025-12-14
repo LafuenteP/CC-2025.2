@@ -87,7 +87,6 @@
                         </tr>
                     </thead>
                     <tbody id="tabela-produtos" class="bg-white divide-y divide-gray-200">
-                        <!-- Linhas serão inseridas aqui via JavaScript -->
                         <tr>
                             <td colspan="5" class="px-6 py-12 text-center text-gray-500">
                                 Carregando produtos...
@@ -297,7 +296,7 @@
                 
                 const data = await response.json();
                 
-                // Formata o JSON para exibição bonita
+                
                 codeElement.textContent = JSON.stringify(data, null, 2);
 
             } catch (error) {

@@ -12,10 +12,10 @@ def testar_listar_produtos():
     print("\n--- [TESTE] GET /produtos (Listar Todos) ---")
     try:
         resp = httpx.get(f"{BASE_URL}/produtos")
-        resp.raise_for_status() # Lança exceção se o status for 4xx ou 5xx
+        resp.raise_for_status()
         print(f"Status: {resp.status_code}")
         print(f"Total de produtos: {len(resp.json())}")
-        # print_json(resp.json()[:5]) # Imprime apenas os 5 primeiros
+
     except httpx.HTTPStatusError as e:
         print(f"Erro HTTP: {e.response.status_code} - {e.response.text}")
     except httpx.RequestError as e:
@@ -95,7 +95,7 @@ def testar_apagar_produto(id: int):
     except httpx.RequestError as e:
         print(f"Erro ao conectar na API: {e}")
 
-# --- Testes de Estatísticas ---
+#Testes de Estatísticas
 
 def testar_maior_preco():
     print("\n--- [TESTE] GET /produtos/stats/maior-preco ---")
