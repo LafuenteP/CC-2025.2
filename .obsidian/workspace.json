@@ -11,8 +11,9 @@
             "id": "c8342b7805b9c242",
             "type": "leaf",
             "state": {
-              "type": "markdown",
+              "type": "image",
               "state": {
+<<<<<<< HEAD
                 "file": "IA/EstudoCodigos/Código A Estrela (GOAT).md",
                 "mode": "source",
                 "source": false
@@ -35,6 +36,40 @@
           }
         ],
         "currentTab": 1
+=======
+                "file": "Teoria da Computação/Pasted image 20251117224745.png"
+              },
+              "icon": "lucide-image",
+              "title": "Pasted image 20251117224745"
+            }
+          },
+          {
+            "id": "885fa07922e981d0",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "Teoria da Computação/Pasted image 20251118000830.png"
+              },
+              "icon": "lucide-image",
+              "title": "Pasted image 20251118000830"
+            }
+          },
+          {
+            "id": "7d14a12a889db993",
+            "type": "leaf",
+            "state": {
+              "type": "image",
+              "state": {
+                "file": "Teoria da Computação/Pasted image 20251118000830.png"
+              },
+              "icon": "lucide-image",
+              "title": "Pasted image 20251118000830"
+            }
+          }
+        ],
+        "currentTab": 2
+>>>>>>> 26d27e31a7a0d6c1ae902264f94b07a236275752
       }
     ],
     "direction": "vertical"
@@ -182,6 +217,7 @@
       "bases:Create new base": false
     }
   },
+<<<<<<< HEAD
   "active": "8e56fc639cbe665c",
   "lastOpenFiles": [
     "A Estrela 1.png",
@@ -197,6 +233,15 @@
     "Teoria Da Computação/Sem título.jpg",
     "Teoria Da Computação/Sem título-1.jpg",
     "Teoria Da Computação",
+=======
+  "active": "7d14a12a889db993",
+  "lastOpenFiles": [
+    "Teoria da Computação/Resolução Lista 1.md",
+    "Teoria da Computação/QXD0046___Teoria_da_Computac&#807;a&#771;o___Listas_de_Exerci&#769;cios (1) (1).pdf",
+    "Teoria da Computação/Pasted image 20251118011138.png",
+    "Teoria da Computação/Pasted image 20251118000830.png",
+    "Teoria da Computação/Pasted image 20251117224745.png",
+>>>>>>> 26d27e31a7a0d6c1ae902264f94b07a236275752
     "Segurança/Criptografia.md",
     "Segurança/Imagens/Sistema de Criptografia.png",
     "Segurança/Prova 1 Revisão.md",
