@@ -13,15 +13,28 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Segurança/Criptografia.md",
+                "file": "IA/EstudoCodigos/Código A Estrela (GOAT).md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Criptografia"
+              "title": "Código A Estrela (GOAT)"
+            }
+          },
+          {
+            "id": "8e56fc639cbe665c",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.10.6"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.10.6"
             }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -169,13 +182,26 @@
       "bases:Create new base": false
     }
   },
-  "active": "26855aa5643c9681",
+  "active": "8e56fc639cbe665c",
   "lastOpenFiles": [
+    "A Estrela 1.png",
+    "IA/EstudoCodigos/Código Guloso (Melhor Escolha).md",
+    "IA/EstudoCodigos/Código A Estrela (GOAT).md",
+    "IA/EstudoCodigos/IMG's A Estrela",
+    "IA/EstudoCodigos/IMG's Guloso",
+    "IA/EstudoCodigos/IMG's Guloso/Errata 3.png",
+    "IA/EstudoCodigos/IMG's Guloso/Errata 2.png",
+    "IA/EstudoCodigos/IMG's Guloso/Errata 1.png",
+    "Teoria Da Computação/Aula dia 24 de Outubro de 2025.md",
+    "Teoria Da Computação/Lista de Exercícios.md",
+    "Teoria Da Computação/Sem título.jpg",
+    "Teoria Da Computação/Sem título-1.jpg",
+    "Teoria Da Computação",
+    "Segurança/Criptografia.md",
     "Segurança/Imagens/Sistema de Criptografia.png",
     "Segurança/Prova 1 Revisão.md",
     "Segurança/Requisitos de Segurança da Informação e Mecanismos Criptográficos de Segurança.md",
     "Desenvolvimento_De_Software_Para_Persistencia/Aula1/venv/Lib/site-packages/httpcore-1.0.9.dist-info/licenses/LICENSE.md",
-    "Segurança/Criptografia.md",
     "IA/ImplementacoesSalaDeAula/Cópia_de_Lab03_Lafuente.ipynb",
     "IA/ImplementacoesSalaDeAula/Lab03_Lafuente_Busca_Custo_Uniforme.ipynb",
     "IA/ImplementacoesSalaDeAula",
@@ -183,7 +209,6 @@
     "IA/Cópia_de_Lab03_Lafuente.ipynb",
     "IA/Lab03_Lafuente_Busca_Custo_Uniforme.ipynb",
     "IA",
-    "Nova pasta",
     "Segurança/Imagens/Mecanismos de Segurança.png"
   ]
 }
