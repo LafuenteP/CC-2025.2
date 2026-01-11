@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Minhas Doações</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1 id="titulo-principal">Veja aqui as suas últimas doações</h1>
+      <div class="tabela-container">
+        <table class="tabela-doacoes">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Item</th>
+              <th>Categoria</th>
+              <th>Data</th>
+              <th id="col-nome-destino">Organização</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tabela-body">
+            <tr>
+              <td colspan="6">Carregando...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      const API_URL = 'http://localhost:1337/api';
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const tbody = document.getElementById('tabela-body');
+        const mainMenu = document.getElementById('main-menu');
+        const tituloPrincipal = document.getElementById('titulo-principal');
+        const colNomeDestino = document.getElementById('col-nome-destino');
+
+        if (!token) {
+          alert('Você precisa estar logado.');
+          window.location.href = 'login.html';
+          return;
+        }
+
+        try {
+          const resUser = await fetch(`${API_URL}/users/me?populate=instituicao`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const user = await resUser.json();
+          const isInstituicao = !!user.instituicao;
+
+          const doarLi = Array.from(mainMenu.children).find(
+            (li) => li.textContent.trim().toLowerCase() === 'doar'
+          );
+          if (doarLi) doarLi.remove();
+
+          const perfilLi = document.createElement('li');
+          perfilLi.innerHTML = `<a href="${
+            isInstituicao ? 'perfil-instituicao.html' : 'perfil.html'
+          }">Seu Perfil</a>`;
+          mainMenu.appendChild(perfilLi);
+
+          if (isInstituicao) {
+            tituloPrincipal.textContent = 'Doações recebidas pela sua instituição';
+            colNomeDestino.textContent = 'Doador';
+          }
+
+          let url = `${API_URL}/solicitacaos?populate=foto,users_permissions_user,instituicao.users_permissions_user,categoria`;
+          if (isInstituicao) {
+            url += `&filters[instituicao][id][$eq]=${user.instituicao.id}`;
+          } else {
+            url += `&filters[users_permissions_user][id][$eq]=${user.id}`;
+          }
+
+          const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+          const { data } = await res.json();
+
+          tbody.innerHTML = '';
+          if (!data || data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6">Nenhuma doação registrada.</td></tr>`;
+            return;
+          }
+
+          data.forEach((sol) => {
+            const atr = sol.attributes;
+            const dataDisponivel = new Date(atr.data_disponivel).toLocaleDateString('pt-BR');
+            const status = atr.status || 'Pendente';
+            const titulo = atr.titulo || 'Sem título';
+            const foto = atr.foto?.data?.attributes?.url
+              ? `http://localhost:1337${atr.foto.data.attributes.url}`
+              : 'https://via.placeholder.com/50';
+            const nomeCategoria = atr.categoria?.data?.attributes?.nome || 'N/A';
+            const nomeOutroLado = isInstituicao
+              ? atr.users_permissions_user?.data?.attributes?.nome || 'Doador não informado'
+              : atr.instituicao?.data?.attributes?.users_permissions_user?.data?.attributes?.nome ||
+                'Instituição não informada';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                        <td><img src="${foto}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;" /></td>
+                        <td>${titulo}</td>
+                        <td>${nomeCategoria}</td>
+                        <td>${dataDisponivel}</td>
+                        <td>${nomeOutroLado}</td>
+                        <td class="status">${status.charAt(0).toUpperCase() + status.slice(1)}</td>
+                    `;
+            tbody.appendChild(tr);
+          });
+        } catch (err) {
+          console.error(err);
+          tbody.innerHTML = '<tr><td colspan="6">Erro ao carregar histórico.</td></tr>';
+        }
+      });
+    </script>
+  </body>
+</html>

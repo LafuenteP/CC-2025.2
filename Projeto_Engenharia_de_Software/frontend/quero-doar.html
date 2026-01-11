@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Oferecer Doação</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <form id="form-oferecer-item" class="form-doacao">
+        <h1>Oferecer um Item para Doação</h1>
+
+        <div class="form-group">
+          <label for="item-titulo">O que você quer doar?</label>
+          <input
+            type="text"
+            id="item-titulo"
+            class="form-input"
+            placeholder="Ex: Cesta básica, roupas de inverno..."
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="select-categoria">Categoria do item</label>
+          <select id="select-categoria" class="form-select" required>
+            <option value="">Carregando categorias...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="item-foto">Foto do item</label>
+          <div class="file-input-wrapper">
+            <label for="item-foto" class="file-input-label">
+              <span>Escolher arquivo...</span>
+              <span id="file-name" class="file-input-filename"></span>
+            </label>
+            <input type="file" id="item-foto" required accept="image/jpeg, image/png" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="item-descricao">Descrição do item</label>
+          <textarea
+            id="item-descricao"
+            class="form-textarea"
+            placeholder="Descreva os itens, condição, quantidade, etc."
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="select-instituicao">Para qual instituição?</label>
+          <select id="select-instituicao" class="form-select" required>
+            <option value="">Carregando instituições...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="item-data">Qual dia você gostaria de entregar?</label>
+          <input type="date" id="item-data" class="form-input" required />
+        </div>
+
+        <button type="submit">Enviar Proposta de Doação</button>
+      </form>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const selectInstituicao = document.getElementById('select-instituicao');
+        const selectCategoria = document.getElementById('select-categoria');
+        const mainMenu = document.getElementById('main-menu');
+
+        try {
+          if (!token) {
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'login.html';
+            return;
+          }
+
+          const userRes = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (!userRes.ok) throw new Error('Sessão inválida. Por favor, faça login novamente.');
+          const user = await userRes.json();
+
+          const doarLi = Array.from(mainMenu.children).find(
+            (li) => li.textContent.trim().toLowerCase() === 'doar'
+          );
+          if (doarLi) doarLi.remove();
+          const perfilLi = document.createElement('li');
+          perfilLi.innerHTML = `<a href="perfil.html">Seu Perfil</a>`;
+          mainMenu.appendChild(perfilLi);
+
+          if (user.instituicao) {
+            alert('Instituições não podem oferecer doações.');
+            window.location.href = 'perfil-instituicao.html';
+            return;
+          }
+
+          const catRes = await fetch('http://localhost:1337/api/categorias');
+          if (!catRes.ok) throw new Error('Falha ao carregar categorias.');
+          const { data: categorias } = await catRes.json();
+          selectCategoria.innerHTML = '<option value="">Selecione uma categoria</option>';
+          categorias.forEach((cat) => {
+            selectCategoria.innerHTML += `<option value="${cat.id}">${cat.attributes.nome}</option>`;
+          });
+
+          const instRes = await fetch(
+            'http://localhost:1337/api/instituicaos?populate=users_permissions_user'
+          );
+          if (!instRes.ok) throw new Error('Falha ao carregar instituições.');
+          const { data: instituicoes } = await instRes.json();
+          selectInstituicao.innerHTML = '<option value="">Selecione uma instituição</option>';
+          instituicoes.forEach((inst) => {
+            const instUser = inst.attributes.users_permissions_user?.data;
+            const nome = instUser?.attributes?.nome || 'Instituição sem nome';
+            selectInstituicao.innerHTML += `<option value="${inst.id}">${nome}</option>`;
+          });
+        } catch (error) {
+          console.error('Erro de autenticação ou carregamento:', error);
+          alert(error.message);
+          localStorage.removeItem('jwt');
+          window.location.href = 'login.html';
+        }
+      });
+
+      const inputFile = document.getElementById('item-foto');
+      const fileNameDisplay = document.getElementById('file-name');
+      inputFile.addEventListener('change', () => {
+        fileNameDisplay.textContent = inputFile.files.length > 0 ? inputFile.files[0].name : '';
+      });
+
+      document.getElementById('form-oferecer-item').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+          alert('Sua sessão expirou. Faça login novamente.');
+          return (window.location.href = 'login.html');
+        }
+
+        try {
+          const foto = document.getElementById('item-foto').files[0];
+          if (!foto) throw new Error('Por favor, selecione uma foto.');
+
+          const formData = new FormData();
+          formData.append('files', foto);
+
+          const uploadRes = await fetch('http://localhost:1337/api/upload', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+          const uploadData = await uploadRes.json();
+          if (!uploadRes.ok)
+            throw new Error(uploadData.error?.message || 'Falha no upload da imagem.');
+
+          const fotoId = uploadData[0].id;
+          const userRes = await fetch('http://localhost:1337/api/users/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const user = await userRes.json();
+
+          const novaSolicitacao = {
+            data: {
+              titulo: document.getElementById('item-titulo').value,
+              descricao: document.getElementById('item-descricao').value,
+              data_disponivel: document.getElementById('item-data').value,
+              status: 'pendente',
+              foto: fotoId,
+              users_permissions_user: user.id,
+              instituicao: document.getElementById('select-instituicao').value,
+              categoria: document.getElementById('select-categoria').value,
+            },
+          };
+
+          const resCriar = await fetch('http://localhost:1337/api/solicitacaos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify(novaSolicitacao),
+          });
+          if (!resCriar.ok) {
+            const criarError = await resCriar.json();
+            throw new Error(criarError.error?.message || 'Erro ao criar a solicitação.');
+          }
+
+          alert('Proposta de doação enviada com sucesso!');
+          window.location.href = 'minhas-doacoes.html';
+        } catch (error) {
+          console.error('Erro ao enviar item:', error);
+          alert('Erro ao enviar item: ' + error.message);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Redefinir Senha</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul>
+          <li><a href="home.html"> Home </a></li>
+          <li><a href="sobre.html"> Sobre </a></li>
+          <li><a href="itens.html"> Itens </a></li>
+          <li><a href="campanhas.html"> Campanhas </a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Redefinir Senha</h1>
+      <p style="text-align: center; margin-bottom: 20px">
+        Cole abaixo o código/token recebido no e-mail ou extraído do link.
+      </p>
+
+      <form id="form-redefinir" class="Login">
+        <h3>Código de Verificação</h3>
+        <input type="text" id="codigo" placeholder="Cole o código do e-mail" required />
+
+        <h3>Nova Senha</h3>
+        <input type="password" id="nova-senha" placeholder="Digite sua nova senha" required />
+
+        <h3>Confirme a Nova Senha</h3>
+        <input
+          type="password"
+          id="confirmar-senha"
+          placeholder="Confirme sua nova senha"
+          required
+        />
+
+        <button type="submit">Salvar Nova Senha</button>
+      </form>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      const formRedefinir = document.getElementById('form-redefinir');
+      formRedefinir.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const code = document.getElementById('codigo').value.trim();
+        const password = document.getElementById('nova-senha').value;
+        const passwordConfirmation = document.getElementById('confirmar-senha').value;
+
+        if (!code || !password || !passwordConfirmation) {
+          alert('Por favor, preencha todos os campos.');
+          return;
+        }
+
+        if (password !== passwordConfirmation) {
+          alert('As senhas não coincidem.');
+          return;
+        }
+
+        try {
+          const res = await fetch('http://localhost:1337/api/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code,
+              password,
+              passwordConfirmation,
+            }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error?.message || 'Falha ao redefinir senha.');
+          alert('Senha redefinida com sucesso! Faça login.');
+          window.location.href = 'login.html';
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao redefinir senha: ' + err.message);
+        }
+      });
+    </script>
+  </body>
+</html>

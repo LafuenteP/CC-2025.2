@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Recuperar Senha</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul>
+          <li><a href="home.html"> Home </a></li>
+          <li><a href="sobre.html"> Sobre </a></li>
+          <li><a href="itens.html"> Itens </a></li>
+          <li><a href="campanhas.html"> Campanhas </a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Recuperar Senha</h1>
+      <form id="form-recuperar" class="Login">
+        <h3>E-mail</h3>
+        <input
+          type="email"
+          id="email-recuperar"
+          placeholder="Digite seu e-mail de cadastro"
+          required
+        />
+        <p style="text-align: center; margin-top: 15px">
+          Um link de redefinição será enviado para o seu e-mail.
+        </p>
+        <button type="submit">Receber Link</button>
+      </form>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      const formRecuperar = document.getElementById('form-recuperar');
+      formRecuperar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email-recuperar').value.trim();
+        if (!email) {
+          alert('Por favor, informe seu e-mail.');
+          return;
+        }
+
+        try {
+          const res = await fetch('http://localhost:1337/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error?.message || 'Falha ao enviar e-mail.');
+          alert('Verifique seu e-mail! Um link de redefinição foi enviado.');
+          window.location.href = 'redefinir-senha.html';
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao solicitar redefinição: ' + err.message);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Cadastro Instituição</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="login.html">Login</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Cadastro de Instituição</h1>
+      <form id="form-cadastro-instituicao" class="Login">
+        <h3>Nome da Instituição:</h3>
+        <input type="text" id="nome-instituicao" required />
+
+        <h3>CNPJ:</h3>
+        <input type="text" id="cnpj-instituicao" required />
+
+        <h3>Telefone:</h3>
+        <input type="text" id="telefone-instituicao" required />
+
+        <h3>Endereço:</h3>
+        <input type="text" id="endereco-instituicao" required />
+
+        <h3>Descrição:</h3>
+        <textarea id="descricao-instituicao" required></textarea>
+
+        <hr />
+
+        <h3>Email de Login:</h3>
+        <input type="email" id="email-instituicao" required />
+
+        <h3>Senha:</h3>
+        <input type="password" id="senha-instituicao" required />
+
+        <div class="checkbox-container">
+          <input type="checkbox" id="termos-instituicao" required />
+          <label for="termos-instituicao">Você concorda com as políticas de dados</label>
+        </div>
+
+        <button type="submit">Cadastrar Instituição</button>
+      </form>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      const form = document.getElementById('form-cadastro-instituicao');
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const nomeInstituicao = document.getElementById('nome-instituicao').value.trim();
+        const cnpj = document.getElementById('cnpj-instituicao').value.trim();
+        const telefone = document.getElementById('telefone-instituicao').value.trim();
+        const endereco = document.getElementById('endereco-instituicao').value.trim();
+        const descricao = document.getElementById('descricao-instituicao').value.trim();
+        const email = document.getElementById('email-instituicao').value.trim();
+        const senha = document.getElementById('senha-instituicao').value.trim();
+
+        const username = nomeInstituicao.toLowerCase().replace(/\s+/g, '_');
+
+        try {
+          const resUser = await fetch('http://localhost:1337/api/auth/local/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              username: username,
+              email: email,
+              password: senha,
+              nome: nomeInstituicao,
+              telefone: telefone,
+            }),
+          });
+
+          const userData = await resUser.json();
+          if (!resUser.ok) {
+            console.error(userData);
+            throw new Error(userData.error?.message || 'Erro ao criar usuário.');
+          }
+
+          const jwt = userData.jwt;
+          const userId = userData.user.id;
+
+          console.log('Usuário criado com sucesso, agora criando Instituição...');
+
+          const resInst = await fetch('http://localhost:1337/api/instituicaos', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${jwt}`,
+            },
+            body: JSON.stringify({
+              data: {
+                nome: nomeInstituicao,
+                CNPJ: cnpj,
+                telefone: telefone,
+                endereco: endereco,
+                descricao: descricao,
+                users_permissions_user: userId,
+              },
+            }),
+          });
+
+          const instData = await resInst.json();
+          if (!resInst.ok) {
+            console.error(instData);
+            throw new Error(instData.error?.message || 'Erro ao criar instituição.');
+          }
+
+          alert('Instituição cadastrada com sucesso!');
+          window.location.href = 'login.html';
+        } catch (err) {
+          console.error('Erro ao cadastrar instituição:', err);
+          alert('Erro ao cadastrar instituição: ' + err.message);
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Projeto Mãe</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Campanha: Projeto Mãe</h1>
+      <img
+        src="https://i.ibb.co/N6YF8fcw/maes.png"
+        alt="Projeto Mãe"
+        style="max-width: 100%; height: auto; margin-bottom: 20px"
+      />
+
+      <section>
+        <h2>Descrição da Campanha</h2>
+        <p>
+          O Projeto Mãe é uma iniciativa voltada para a arrecadação de itens essenciais para mães em
+          situação de vulnerabilidade. A campanha busca mobilizar a comunidade para doar fraldas,
+          roupas infantis, produtos de higiene e alimentos não perecíveis.
+        </p>
+      </section>
+
+      <section>
+        <h2>Local de Arrecadação</h2>
+        <p>Casa do Cego Aderaldo - Rua Exemplo, 123 - Fortaleza, CE</p>
+      </section>
+
+      <section>
+        <h2>Período</h2>
+        <p>De 25/02/2025 até 25/07/2025</p>
+      </section>
+
+      <section>
+        <h2>Como posso ajudar?</h2>
+        <p>
+          Você pode doar clicando em “Itens” no menu e escolhendo o que deseja oferecer. Toda ajuda
+          é bem-vinda e fará a diferença na vida de muitas famílias.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const mainMenu = document.getElementById('main-menu');
+
+        if (!token || !mainMenu) return;
+
+        try {
+          const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const user = await res.json();
+          const isInstituicao = !!user.instituicao;
+
+          const doarLi = Array.from(mainMenu.children).find((li) =>
+            li.textContent.trim().includes('Doar')
+          );
+          if (isInstituicao && doarLi) doarLi.remove();
+
+          const perfilLi = document.createElement('li');
+          perfilLi.innerHTML = `<a href="${
+            isInstituicao ? 'perfil-instituicao.html' : 'perfil.html'
+          }">Seu Perfil</a>`;
+          mainMenu.appendChild(perfilLi);
+        } catch (err) {
+          console.error('Erro ao ajustar menu:', err);
+        }
+      });
+    </script>
+  </body>
+</html>

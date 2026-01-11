@@ -1,0 +1,37 @@
+{
+  "kind": "collectionType",
+  "collectionName": "instituicaos",
+  "info": {
+    "singularName": "instituicao",
+    "pluralName": "instituicaos",
+    "displayName": "Instituicao",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "endereco": {
+      "type": "string"
+    },
+    "descricao": {
+      "type": "text"
+    },
+    "CNPJ": {
+      "type": "string"
+    },
+    "solicitacaos": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::solicitacao.solicitacao",
+      "mappedBy": "instituicao"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "instituicao"
+    }
+  }
+}

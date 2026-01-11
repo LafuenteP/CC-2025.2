@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Home</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Compartilhar é um ato de amor. Doe, transforme vidas!</h1>
+      <button id="botao-quero-doar" type="button">Quero Doar</button>
+      <h2>O que você dá pode não mudar o mundo, mas pode mudar o mundo de alguém.</h2>
+
+      <div class="Mão coração">
+        <img src="img/home/mao_heart.PNG" alt="mao-heart" />
+        <h3>Quando você doa</h3>
+        <p>Sua generosidade é o início de uma corrente de transformação</p>
+      </div>
+
+      <div class="Pessoa Caixa">
+        <img src="img/home/received.PNG" alt="pessoa recebendo" />
+        <h3>Quem precisa recebe</h3>
+        <p>Sua doação é o abração que alguém esperava</p>
+      </div>
+
+      <div class="Smaili Face">
+        <img src="img/home/happy.PNG" alt="rosto feliz" />
+        <h3>Todos saem felizes</h3>
+        <p>A felicidade compartilhada é o maior presente de todos</p>
+      </div>
+
+      <button id="botao-quero-doar" type="button">Quero Doar</button>
+
+      <div id="quadrado cringe">
+        <h1>FAQ</h1>
+
+        <h2>Como posso doar?</h2>
+        <p>
+          Basta clicar no botão "Quero doar" e você poderá fornecer todas as informações sobre sua
+          doação.
+        </p>
+
+        <h2>As doações são seguras?</h2>
+        <p>
+          Sim! Trabalhamos com ONGs e instituições verificadas, e todas as transações são protegidas
+          com criptografia para garantir sua segurança e privacidade.
+        </p>
+
+        <h2>Onde as doações são entregues?</h2>
+        <p>
+          Você pode encontrar o local dos itens nas especificações ou receber informações do próprio
+          doador quando o endereço não é público.
+        </p>
+
+        <h2>Como saber sobre novas campanhas?</h2>
+        <p>
+          Por enquanto, as campanhas são publicadas apenas no site. Visite com frequência para não
+          perder nenhuma novidade.
+        </p>
+      </div>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const mainMenu = document.getElementById('main-menu');
+        let isInstituicao = false;
+
+        if (token && mainMenu) {
+          try {
+            const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+
+            const user = await res.json();
+            isInstituicao = !!user.instituicao;
+
+            const doarLi = Array.from(mainMenu.children).find((li) =>
+              li.textContent.trim().includes('Doar')
+            );
+            if (isInstituicao && doarLi) doarLi.remove();
+
+            const perfilLi = document.createElement('li');
+            perfilLi.innerHTML = `<a href="${
+              isInstituicao ? 'perfil-instituicao.html' : 'perfil.html'
+            }">Seu Perfil</a>`;
+            mainMenu.appendChild(perfilLi);
+          } catch (err) {
+            console.error('Erro ao ajustar menu:', err);
+          }
+        }
+
+        const botoesDoar = document.querySelectorAll('#botao-quero-doar');
+        botoesDoar.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            if (isInstituicao) {
+              alert('Instituições não podem realizar doações.');
+            } else if (token) {
+              window.location.href = 'quero-doar.html';
+            } else {
+              window.location.href = 'login.html';
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

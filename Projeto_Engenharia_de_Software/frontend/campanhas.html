@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Campanha</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html"> Home </a></li>
+          <li><a href="sobre.html"> Sobre </a></li>
+          <li><a href="itens.html"> Itens </a></li>
+          <li><a href="campanhas.html"> Campanhas </a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Campanhas</h1>
+
+      <div class="campanha-card">
+        <a href="#"><img src="https://i.ibb.co/N6YF8fcw/maes.png" alt="maes" /></a>
+        <div class="campanha-info">
+          <a href="projeto_mae.html"><h2>Projeto mãe</h2></a>
+          <p>Local de arrecadação: Casa do cego Aderaldo</p>
+          <p>Data: 25/02/2025 – 25/07/2025</p>
+        </div>
+      </div>
+
+      <div class="campanha-card">
+        <a href="#"
+          ><img src="https://i.ibb.co/gZbY3Mtp/corrente-do-bem.png" alt="corrente-do-bem"
+        /></a>
+        <div class="campanha-info">
+          <h2>Projeto Corrente do Bem</h2>
+          <p>Local de arrecadação: Casa do cego Aderaldo</p>
+          <p>Data: 25/02/2025 – 25/07/2025</p>
+        </div>
+      </div>
+
+      <div class="campanha-card">
+        <a href="#"><img src="https://i.ibb.co/nNvpLq7f/abraco.jpg" alt="abraco" /></a>
+        <div class="campanha-info">
+          <h2>Projeto Abraço Solidário</h2>
+          <p>Local de arrecadação: Casa do cego Aderaldo</p>
+          <p>Data: 25/02/2025 – 25/07/2025</p>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const mainMenu = document.getElementById('main-menu');
+
+        if (!token || !mainMenu) return;
+
+        try {
+          const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const user = await res.json();
+          const isInstituicao = !!user.instituicao;
+
+          const doarLi = Array.from(mainMenu.children).find((li) =>
+            li.textContent.trim().includes('Doar')
+          );
+          if (isInstituicao && doarLi) doarLi.remove();
+
+          const perfilLi = document.createElement('li');
+          perfilLi.innerHTML = `
+            <a href="${isInstituicao ? 'perfil-instituicao.html' : 'perfil.html'}">Seu Perfil</a>
+          `;
+          mainMenu.appendChild(perfilLi);
+        } catch (err) {
+          console.error('Erro ao ajustar menu:', err);
+        }
+      });
+    </script>
+  </body>
+</html>

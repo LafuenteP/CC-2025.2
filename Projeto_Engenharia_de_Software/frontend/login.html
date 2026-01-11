@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - DoaAí</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul>
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Login</h1>
+      <form id="form-login" class="Login">
+        <h3>E-mail</h3>
+        <input type="email" id="email" placeholder="Digite o seu email aqui:" required />
+
+        <h3>Senha</h3>
+        <div class="senha_email">
+          <input type="password" id="senha" placeholder="Digite sua senha aqui:" required />
+          <a href="esqueci-senha.html">Esqueci a senha</a>
+        </div>
+
+        <button type="submit">Entrar</button>
+      </form>
+
+      <div class="signup-section">
+        <h2>Não tem conta?</h2>
+        <div class="signup-buttons">
+          <button id="botao-cadastro-usuario" class="botao-secundario">Cadastrar Usuário</button>
+          <button id="botao-cadastro-instituicao" class="botao-secundario">
+            Cadastrar Instituição
+          </button>
+        </div>
+      </div>
+    </main>
+    >
+
+    <footer>
+      <h3>DoAí - Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      const formLogin = document.getElementById('form-login');
+      formLogin.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('senha').value.trim();
+
+        if (!email || !password) {
+          alert('Preencha todos os campos.');
+          return;
+        }
+
+        try {
+          const res = await fetch('http://localhost:1337/api/auth/local', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ identifier: email, password }),
+          });
+
+          const data = await res.json();
+          if (!res.ok) {
+            throw new Error(data.error?.message || 'Falha no login');
+          }
+
+          localStorage.setItem('jwt', data.jwt);
+
+          const meRes = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+            headers: { Authorization: `Bearer ${data.jwt}` },
+          });
+          const meData = await meRes.json();
+
+          if (meData.instituicao) {
+            window.location.href = 'painel-instituicao.html';
+          } else {
+            window.location.href = 'perfil.html';
+          }
+        } catch (err) {
+          console.error('Erro no login:', err);
+          alert('Erro no login: ' + err.message);
+        }
+      });
+
+      document.getElementById('botao-cadastro-usuario').addEventListener('click', () => {
+        window.location.href = 'cadastro.html';
+      });
+
+      document.getElementById('botao-cadastro-instituicao').addEventListener('click', () => {
+        window.location.href = 'cadastro-instituicao.html';
+      });
+    </script>
+  </body>
+</html>

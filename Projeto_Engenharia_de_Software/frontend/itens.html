@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Itens para Doação</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+    <header>
+        <div class="logo">DoaAí</div>
+        <nav>
+            <ul id="main-menu">
+                <li><a href="home.html">Home</a></li>
+                <li><a href="sobre.html">Sobre</a></li>
+                <li><a href="itens.html">Itens</a></li>
+                <li><a href="campanhas.html">Campanhas</a></li>
+                <li><a href="quero-doar.html">Doar</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <div class="page-header-controls">
+            <h1>Itens Disponíveis para Doação</h1>
+            <div class="form-group" style="max-width: 300px; text-align: left;">
+                <label for="filtro-categoria" style="font-weight: bold; font-size: 16px;">Filtrar por Categoria:</label>
+                <select id="filtro-categoria" class="form-select">
+                    <option value="all">Carregando...</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="itens-grid-container" class="itens-grid-container">
+            <p>Carregando itens...</p>
+        </div>
+    </main>
+
+    <footer>
+        <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:1337/api';
+        const gridContainer = document.getElementById('itens-grid-container');
+        const filtroCategoria = document.getElementById('filtro-categoria');
+
+        function renderizarItens(itens) {
+            gridContainer.innerHTML = '';
+            if (!itens || itens.length === 0) {
+                gridContainer.innerHTML = '<p>Nenhum item encontrado para esta categoria.</p>';
+                return;
+            }
+            itens.forEach((item) => {
+                const attrs = item.attributes;
+                const titulo = attrs.titulo || 'Item sem título';
+                const descricao = attrs.descricao || 'Sem descrição.';
+                const fotoUrl = attrs.foto?.data?.attributes?.url ? `http://localhost:1337${attrs.foto.data.attributes.url}` : 'https://via.placeholder.com/300';
+                const doador = attrs.users_permissions_user?.data?.attributes;
+                const nomeDoador = doador?.nome || doador?.username || 'Anônimo';
+                const instituicao = attrs.instituicao?.data?.attributes;
+                const userInst = instituicao?.users_permissions_user?.data?.attributes;
+                const nomeInstituicao = userInst?.nome || 'Não informada';
+                const contatoInstituicao = userInst?.telefone || userInst?.email || 'Não informado';
+                const nomeCategoria = attrs.categoria?.data?.attributes?.nome || 'Não informada';
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                  <div class="item-image-wrapper">
+                      <img src="${fotoUrl}" alt="${titulo}">
+                      <div class="item-description-overlay"><p>${descricao}</p></div>
+                  </div>
+                  <div class="item-card-info">
+                      <h3>${titulo}</h3>
+                      <p><strong>Categoria:</strong> ${nomeCategoria}</p>
+                      <p><strong>Instituição:</strong> ${nomeInstituicao}</p>
+                      <p><strong>Doador:</strong> ${nomeDoador}</p>
+                      <p><strong>Contato para Entrega:</strong> ${contatoInstituicao}</p>
+                  </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
+        async function setupItensPage() {
+            const token = localStorage.getItem('jwt');
+            const mainMenu = document.getElementById('main-menu');
+            if (token && mainMenu) {
+                try {
+                    const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', { headers: { Authorization: `Bearer ${token}` } });
+                    const user = await res.json();
+                    const isInstituicao = !!user.instituicao;
+                    const doarLi = Array.from(mainMenu.children).find((li) => li.textContent.trim().includes('Doar'));
+                    if (isInstituicao && doarLi) doarLi.remove();
+                    const perfilLi = document.createElement('li');
+                    perfilLi.innerHTML = `<a href="${isInstituicao ? 'perfil-instituicao.html' : 'perfil.html'}">Seu Perfil</a>`;
+                    mainMenu.appendChild(perfilLi);
+                } catch (err) {
+                    console.error('Erro ao ajustar menu:', err);
+                }
+            }
+            try {
+                const catRes = await fetch(`${API_URL}/categorias`);
+                const { data: categorias } = await catRes.json();
+                filtroCategoria.innerHTML = '<option value="all">Todas as Categorias</option>';
+                categorias.forEach(cat => {
+                    filtroCategoria.innerHTML += `<option value="${cat.id}">${cat.attributes.nome}</option>`;
+                });
+            } catch (error) {
+                console.error('Erro ao carregar categorias:', error);
+                filtroCategoria.innerHTML = '<option value="all">Erro ao carregar</option>';
+            }
+            async function fetchAndRenderItens(categoriaId = 'all') {
+                gridContainer.innerHTML = '<p>Carregando itens...</p>';
+                let url = `${API_URL}/solicitacaos?filters[status][$eq]=aceito&populate=foto,users_permissions_user,instituicao.users_permissions_user,categoria`;
+                if (categoriaId !== 'all') {
+                    url += `&filters[categoria][id][$eq]=${categoriaId}`;
+                }
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) throw new Error('Não foi possível carregar os itens.');
+                    const { data } = await response.json();
+                    renderizarItens(data);
+                } catch (error) {
+                    console.error('Erro ao buscar itens:', error);
+                    gridContainer.innerHTML = '<p>Ocorreu um erro ao carregar os itens.</p>';
+                }
+            }
+            filtroCategoria.addEventListener('change', (event) => {
+                const selectedCategoryId = event.target.value;
+                fetchAndRenderItens(selectedCategoryId);
+            });
+            fetchAndRenderItens();
+        }
+        document.addEventListener('DOMContentLoaded', setupItensPage);
+    </script>
+</body>
+</html>

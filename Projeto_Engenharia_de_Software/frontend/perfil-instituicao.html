@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Perfil da Instituição</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="auth-guard.js"></script>
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html"> Home </a></li>
+          <li><a href="sobre.html"> Sobre </a></li>
+          <li><a href="itens.html"> Itens </a></li>
+          <li><a href="campanhas.html"> Campanhas </a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <div class="perfil-container">
+        <div class="esquerda">
+          <h2 id="instituicao-nome">Carregando...</h2>
+          <img id="instituicao-foto" src="img/placeholder.png" class="foto-perfil" />
+          <label for="upload-foto" class="edita-foto">&#9998;</label>
+          <input
+            type="file"
+            id="upload-foto"
+            style="display: none"
+            accept="image/jpeg, image/png"
+          />
+
+          <div id="dados-container">
+            <p><strong>CNPJ:</strong> <span id="instituicao-cnpj">...</span></p>
+            <p><strong>Email:</strong> <span id="instituicao-email">...</span></p>
+            <p><strong>Telefone:</strong> <span id="instituicao-telefone">...</span></p>
+            <p><strong>Endereço:</strong> <span id="instituicao-endereco">...</span></p>
+            <h3>Sobre a Instituição:</h3>
+            <p id="instituicao-descricao">...</p>
+          </div>
+
+          <button id="botao-editar" class="botao-editar">Editar Informações</button>
+        </div>
+
+        <div class="direita">
+          <button class="botao-menu" onclick="location.href='campanhas.html'">Ver Campanhas</button>
+          <button class="botao-menu" onclick="location.href='painel-instituicao.html'">
+            Painel de Doações
+          </button>
+          <button class="botao-menu" onclick="location.href='itens.html'">Itens Registrados</button>
+          <button id="botao-sair" class="botao-sair">Sair</button>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const mainMenu = document.getElementById('main-menu');
+        if (!token || !mainMenu) return;
+        try {
+          const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const user = await res.json();
+          const isInstituicao = !!user.instituicao;
+          if (isInstituicao) {
+            const doarLi = Array.from(mainMenu.children).find((li) =>
+              li.textContent.trim().includes('Doar')
+            );
+            if (doarLi) doarLi.remove();
+          }
+        } catch (err) {
+          console.error('Erro ao ajustar menu:', err);
+        }
+      });
+    </script>
+
+    <script>
+      let usuario = null;
+      let instituicao = null;
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        if (!token) return (location.href = 'login.html');
+
+        try {
+          const res = await fetch(
+            'http://localhost:1337/api/users/me?populate=instituicao,foto_perfil',
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          if (!res.ok) throw new Error('Falha ao carregar dados do usuário.');
+
+          usuario = await res.json();
+          instituicao = usuario.instituicao;
+
+          if (!instituicao) {
+            alert('Apenas instituições acessam esta página.');
+            return (location.href = 'perfil.html');
+          }
+
+          document.getElementById('instituicao-nome').textContent = usuario.nome || '';
+          document.getElementById('instituicao-email').textContent = usuario.email || '';
+          document.getElementById('instituicao-telefone').textContent = usuario.telefone || '';
+          document.getElementById('instituicao-cnpj').textContent = instituicao.CNPJ || '';
+          document.getElementById('instituicao-endereco').textContent = instituicao.endereco || '';
+          document.getElementById('instituicao-descricao').textContent =
+            instituicao.descricao || '';
+
+          if (usuario.foto_perfil?.url) {
+            document.getElementById(
+              'instituicao-foto'
+            ).src = `http://localhost:1337${usuario.foto_perfil.url}`;
+          }
+        } catch (error) {
+          console.error('Erro no carregamento:', error);
+          alert(error.message);
+          localStorage.removeItem('jwt');
+          location.href = 'login.html';
+        }
+      });
+
+      document.getElementById('upload-foto').addEventListener('change', async (event) => {
+        const file = event.target.files[0];
+        const token = localStorage.getItem('jwt');
+        if (!file || !token) return;
+
+        const formData = new FormData();
+        formData.append('files', file);
+
+        try {
+          const uploadRes = await fetch('http://localhost:1337/api/upload', {
+            method: 'POST',
+            headers: { Authorization: `Bearer ${token}` },
+            body: formData,
+          });
+          const result = await uploadRes.json();
+          if (!uploadRes.ok)
+            throw new Error(result.error?.message || 'Erro ao fazer upload da foto.');
+
+          const fotoId = result[0].id;
+
+          await fetch(`http://localhost:1337/api/users/${usuario.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ foto_perfil: fotoId }),
+          });
+
+          alert('Foto atualizada!');
+          location.reload();
+        } catch (error) {
+          alert('Falha ao atualizar foto: ' + error.message);
+        }
+      });
+
+      document.getElementById('botao-editar').addEventListener('click', () => {
+        const cnpj = instituicao.CNPJ || '';
+        const telefone = usuario.telefone || '';
+        const endereco = instituicao.endereco || '';
+        const descricao = instituicao.descricao || '';
+        const nome = usuario.nome || '';
+
+        document.getElementById('dados-container').innerHTML = `
+            <div class="edit-form-container">
+                <p><strong>Nome:</strong> <input id="input-nome" value="${nome}" class="edit-form-input" /></p>
+                <p><strong>CNPJ:</strong> <input id="input-cnpj" value="${cnpj}" class="edit-form-input" /></p>
+                <p><strong>Email:</strong> ${usuario.email}</p>
+                <p><strong>Telefone:</strong> <input id="input-telefone" value="${telefone}" class="edit-form-input" /></p>
+                <p><strong>Endereço:</strong> <input id="input-endereco" value="${endereco}" class="edit-form-input" /></p>
+                <h3>Sobre a Instituição:</h3>
+                <textarea id="input-descricao" class="edit-form-textarea">${descricao}</textarea>
+                <div class="edit-form-actions">
+                    <button id="salvar">Salvar</button>
+                    <button id="cancelar" onclick="location.reload()">Cancelar</button>
+                </div>
+            </div>
+            `;
+
+        document.getElementById('botao-editar').style.display = 'none';
+
+        document.getElementById('salvar').addEventListener('click', async () => {
+          const token = localStorage.getItem('jwt');
+          if (!token) return alert('Sessão expirada, faça login novamente.');
+
+          try {
+            await fetch(`http://localhost:1337/api/users/${usuario.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({
+                nome: document.getElementById('input-nome').value,
+                telefone: document.getElementById('input-telefone').value,
+              }),
+            });
+
+            await fetch(`http://localhost:1337/api/instituicaos/${instituicao.id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+              body: JSON.stringify({
+                data: {
+                  CNPJ: document.getElementById('input-cnpj').value,
+                  endereco: document.getElementById('input-endereco').value,
+                  descricao: document.getElementById('input-descricao').value,
+                },
+              }),
+            });
+
+            alert('Informações atualizadas com sucesso!');
+            location.reload();
+          } catch (error) {
+            console.error('Erro ao salvar:', error);
+            alert('Ocorreu um erro ao salvar as informações.');
+          }
+        });
+      });
+
+      document.getElementById('botao-sair').addEventListener('click', () => {
+        localStorage.removeItem('jwt');
+        window.location.href = 'login.html';
+      });
+    </script>
+  </body>
+</html>

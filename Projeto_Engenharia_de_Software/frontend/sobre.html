@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Sobre</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <h1>Sobre o DoaAí</h1>
+        <p>
+          O <strong>DoaAí</strong> é uma plataforma pensada para aproximar doadores de instituições
+          que precisam de apoio. Nosso objetivo é facilitar o processo de doação e promover o bem,
+          conectando quem quer ajudar com quem realmente precisa.
+        </p>
+        <p>
+          Aqui, pessoas físicas podem doar itens que não usam mais, e instituições podem recebê-los
+          com segurança, transparência e organização.
+        </p>
+        <p>Acreditamos que pequenas ações podem gerar grandes impactos — e cada doação conta!</p>
+      </section>
+
+      <section>
+        <h2>Como funciona?</h2>
+        <ul>
+          <li>Usuários se cadastram e disponibilizam itens para doação.</li>
+          <li>Instituições recebem e analisam as ofertas disponíveis.</li>
+          <li>Campanhas e iniciativas podem ser organizadas dentro da própria plataforma.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Nossa missão</h2>
+        <p>
+          Criar uma rede solidária e eficiente para o reaproveitamento de recursos, incentivando a
+          generosidade e fortalecendo o trabalho de instituições sociais.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const mainMenu = document.getElementById('main-menu');
+
+        if (!token || !mainMenu) return;
+
+        try {
+          const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const user = await res.json();
+          const isInstituicao = !!user.instituicao;
+
+          const doarLi = Array.from(mainMenu.children).find((li) =>
+            li.textContent.trim().includes('Doar')
+          );
+          if (isInstituicao && doarLi) doarLi.remove();
+
+          const perfilLi = document.createElement('li');
+          perfilLi.innerHTML = `<a href="${
+            isInstituicao ? 'perfil-instituicao.html' : 'perfil.html'
+          }">Seu Perfil</a>`;
+          mainMenu.appendChild(perfilLi);
+        } catch (err) {
+          console.error('Erro ao ajustar menu:', err);
+        }
+      });
+    </script>
+  </body>
+</html>

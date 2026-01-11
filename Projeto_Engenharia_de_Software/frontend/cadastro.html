@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Cadastro</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul>
+          <li><a href="home.html"> Home </a></li>
+          <li><a href="sobre.html"> Sobre </a></li>
+          <li><a href="itens.html"> Itens </a></li>
+          <li><a href="campanhas.html"> Campanhas </a></li>
+          <li><a href="login.html">Login</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <h1>Cadastro</h1>
+      <form id="form-cadastro" class="Login">
+        <h3>Nome:</h3>
+        <input type="text" id="nome-cadastro" required />
+        <h3>Sobrenome:</h3>
+        <input type="text" id="sobrenome-cadastro" required />
+        <h3>E-mail:</h3>
+        <input type="email" id="email-cadastro" required />
+        <h3>Telefone:</h3>
+        <input type="text" id="telefone-cadastro" required />
+        <h3>Senha:</h3>
+        <input type="password" id="senha-cadastro" required /> <br />
+        <div class="checkbox-container">
+          <input type="checkbox" id="termos-cadastro" required />
+          <label for="termos-cadastro">Você concorda com as políticas de dados</label>
+        </div>
+        <button type="submit">Enviar</button>
+      </form>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      const formCadastro = document.getElementById('form-cadastro');
+
+      formCadastro.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const nome = document.getElementById('nome-cadastro').value.trim();
+        const sobrenome = document.getElementById('sobrenome-cadastro').value.trim();
+        const email = document.getElementById('email-cadastro').value.trim();
+        const telefone = document.getElementById('telefone-cadastro').value.trim();
+        const senha = document.getElementById('senha-cadastro').value.trim();
+
+        if (!nome || !sobrenome || !email || !senha) {
+          alert('Por favor, preencha todos os campos obrigatórios.');
+          return;
+        }
+
+        const username = `${nome.toLowerCase()}_${sobrenome.toLowerCase()}`.replace(/\s+/g, '_');
+
+        try {
+          const response = await fetch('http://localhost:1337/api/auth/local/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              username: username,
+              email: email,
+              password: senha,
+              nome: nome,
+              sobrenome: sobrenome,
+              telefone: telefone,
+            }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error.message);
+          }
+
+          alert('Cadastro realizado com sucesso! Por favor, faça o login.');
+          window.location.href = 'login.html';
+        } catch (error) {
+          console.error('Ocorreu um erro no cadastro:', error);
+          alert(`Erro no cadastro: ${error.message}`);
+        }
+      });
+    </script>
+  </body>
+</html>

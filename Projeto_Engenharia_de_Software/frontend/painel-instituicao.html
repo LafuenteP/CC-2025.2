@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Painel da Instituição - DoaAí</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <h1>Painel da Instituição</h1>
+
+      <div class="painel-grid">
+        <div class="painel-coluna">
+          <h2>Pendentes</h2>
+          <div id="solicitacoes-pendentes">Carregando...</div>
+        </div>
+
+        <div class="painel-coluna">
+          <h2>Aceitas</h2>
+          <div id="solicitacoes-aceitas">Carregando...</div>
+        </div>
+
+        <div class="painel-coluna">
+          <h2>Realizadas</h2>
+          <div id="solicitacoes-realizadas">Carregando...</div>
+        </div>
+
+        <div class="painel-coluna">
+          <h2>Recusadas</h2>
+          <div id="solicitacoes-recusadas">Carregando...</div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <h3>DoaAí - Todos os direitos reservados © 2025.</h3>
+    </footer>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', async () => {
+        const token = localStorage.getItem('jwt');
+        const mainMenu = document.getElementById('main-menu');
+        if (!token || !mainMenu) return;
+        try {
+          const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const user = await res.json();
+          const isInstituicao = !!user.instituicao;
+          const doarLi = Array.from(mainMenu.children).find((li) =>
+            li.textContent.trim().includes('Doar')
+          );
+          if (isInstituicao && doarLi) doarLi.remove();
+          const perfilLi = document.createElement('li');
+          perfilLi.innerHTML = `<a href="perfil-instituicao.html">Seu Perfil</a>`;
+          mainMenu.appendChild(perfilLi);
+        } catch (err) {
+          console.error('Erro ao ajustar menu:', err);
+        }
+      });
+    </script>
+
+    <script>
+      const API_URL = 'http://localhost:1337/api';
+
+      async function carregarPainel() {
+        const token = localStorage.getItem('jwt');
+        if (!token) {
+          alert('Faça login como instituição para acessar.');
+          window.location.href = 'login.html';
+          return;
+        }
+        try {
+          const userRes = await fetch(`${API_URL}/users/me?populate=instituicao`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const userData = await userRes.json();
+          const instituicaoId = userData?.instituicao?.id;
+          if (!instituicaoId) {
+            alert('Sua conta não está vinculada a nenhuma instituição.');
+            window.location.href = 'perfil.html';
+            return;
+          }
+
+          carregarSolicitacoes('pendente', 'solicitacoes-pendentes', instituicaoId, true);
+          carregarSolicitacoes('aceito', 'solicitacoes-aceitas', instituicaoId, false);
+          carregarSolicitacoes('doado', 'solicitacoes-realizadas', instituicaoId, false);
+          carregarSolicitacoes('recusado', 'solicitacoes-recusadas', instituicaoId, false);
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao carregar informações.');
+        }
+      }
+
+      async function carregarSolicitacoes(status, containerId, instituicaoId, permitirAcoes) {
+        const container = document.getElementById(containerId);
+        const token = localStorage.getItem('jwt');
+
+        try {
+          const res = await fetch(
+            `${API_URL}/solicitacaos?filters[instituicao][id][$eq]=${instituicaoId}&filters[status][$eq]=${status}&populate=foto,users_permissions_user,categoria`,
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+          const { data } = await res.json();
+
+          container.innerHTML = '';
+          if (!data || data.length === 0) {
+            container.innerHTML = '<p>Nenhuma solicitação aqui.</p>';
+            return;
+          }
+
+          data.forEach((sol) => {
+            const atributos = sol.attributes;
+            const fotoUrl = atributos.foto?.data?.attributes?.url
+              ? `http://localhost:1337${atributos.foto.data.attributes.url}`
+              : 'https://via.placeholder.com/100';
+            const doadorNome =
+              atributos.users_permissions_user?.data?.attributes?.nome || 'Não informado';
+            const dataDisponivel = new Date(atributos.data_disponivel).toLocaleDateString('pt-BR');
+            const nomeCategoria = atributos.categoria?.data?.attributes?.nome || 'Sem categoria';
+
+            let botoesExtras = '';
+            if (permitirAcoes) {
+              botoesExtras = `
+                          <div class="solicitacao-actions">
+                              <button onclick="atualizarStatus(${sol.id}, 'aceito')">Aceitar</button>
+                              <button onclick="atualizarStatus(${sol.id}, 'recusado')" style="background-color: #888;">Recusar</button>
+                          </div>`;
+            } else if (status === 'aceito') {
+              botoesExtras = `
+                          <div class="solicitacao-actions">
+                              <button class="botao-confirmar" onclick="atualizarStatus(${sol.id}, 'doado')">Confirmar Doação</button>
+                          </div>`;
+            }
+
+            const card = document.createElement('div');
+            card.className = 'solicitacao-card';
+            card.innerHTML = `
+                        <img src="${fotoUrl}" alt="Foto do item">
+                        <div>
+                            <h3>${atributos.titulo}</h3>
+                            <p><strong>Categoria:</strong> ${nomeCategoria}</p>
+                            <p><strong>Doador:</strong> ${doadorNome}</p>
+                            <p><strong>Disponível em:</strong> ${dataDisponivel}</p>
+                            <p><strong>Descrição:</strong> ${atributos.descricao}</p>
+                            ${botoesExtras}
+                        </div>
+                    `;
+            container.appendChild(card);
+          });
+        } catch (err) {
+          console.error(err);
+          container.innerHTML = '<p>Erro ao carregar solicitações.</p>';
+        }
+      }
+
+      async function atualizarStatus(id, novoStatus) {
+        const token = localStorage.getItem('jwt');
+        try {
+          await fetch(`${API_URL}/solicitacaos/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ data: { status: novoStatus } }),
+          });
+          carregarPainel();
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao atualizar solicitação.');
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', carregarPainel);
+    </script>
+  </body>
+</html>

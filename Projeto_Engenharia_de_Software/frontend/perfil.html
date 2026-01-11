@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <title>DoaAí - Meu Perfil</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <div class="logo">DoaAí</div>
+      <nav>
+        <ul id="main-menu">
+          <li><a href="home.html">Home</a></li>
+          <li><a href="sobre.html">Sobre</a></li>
+          <li><a href="itens.html">Itens</a></li>
+          <li><a href="campanhas.html">Campanhas</a></li>
+          <li><a href="quero-doar.html">Doar</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <div class="perfil-container">
+        <div class="esquerda">
+          <h2>Seu Perfil:</h2>
+          <img id="perfil-foto" src="img/perfil/placeholder.png" class="foto-perfil" />
+          <label for="upload-foto" class="edita-foto">&#9998;</label>
+          <input type="file" id="upload-foto" style="display: none" accept="image/*" />
+
+          <div id="dados-container">
+            <div id="view-mode">
+              <p>Nome: <span id="perfil-nome">Carregando...</span></p>
+              <p>Email: <span id="perfil-email">Carregando...</span></p>
+              <p>Telefone: <span id="perfil-telefone">Carregando...</span></p>
+              <button id="botao-editar" class="botao-editar">Editar</button>
+            </div>
+
+            <div id="edit-mode" style="display: none">
+              <p>Nome: <input type="text" id="input-nome" /></p>
+              <p>Sobrenome: <input type="text" id="input-sobrenome" /></p>
+              <p>Telefone: <input type="text" id="input-telefone" /></p>
+              <button id="botao-salvar" class="botao-editar">Salvar</button>
+              <button id="botao-cancelar" class="botao-sair" style="background-color: #888">
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="direita">
+          <button class="botao-menu" onclick="location.href='minhas-doacoes.html'">
+            Minhas Doações
+          </button>
+          <button class="botao-menu" onclick="location.href='itens.html'">Itens Oferecidos</button>
+          <button class="botao-menu" onclick="location.href='campanhas.html'">Campanhas</button>
+          <button class="botao-menu" onclick="location.href='configuracoes.html'">
+            Configurações
+          </button>
+
+          <button id="botao-sair" class="botao-sair">Sair</button>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <h3>DoAí Todos os direitos reservados 2025.</h3>
+    </footer>
+
+    <script>
+      const token = localStorage.getItem('jwt');
+      let usuario = null;
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        if (!token) {
+          alert('Você precisa estar logado para acessar o perfil.');
+          return (window.location.href = 'login.html');
+        }
+
+        try {
+          const res = await fetch(
+            'http://localhost:1337/api/users/me?populate=instituicao,foto_perfil',
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
+
+          usuario = await res.json();
+
+          if (usuario.instituicao) {
+            alert('Instituições acessam o perfil em outra página.');
+            return (window.location.href = 'perfil-instituicao.html');
+          }
+
+          document.getElementById('perfil-nome').textContent = `${usuario.nome || ''} ${
+            usuario.sobrenome || ''
+          }`;
+          document.getElementById('perfil-email').textContent = usuario.email || '';
+          document.getElementById('perfil-telefone').textContent = usuario.telefone || '';
+
+          if (usuario.foto_perfil?.url) {
+            document.getElementById(
+              'perfil-foto'
+            ).src = `http://localhost:1337${usuario.foto_perfil.url}`;
+          }
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao carregar perfil.');
+          window.location.href = 'login.html';
+        }
+      });
+
+      document.getElementById('botao-editar').addEventListener('click', () => {
+        document.getElementById('input-nome').value = usuario.nome || '';
+        document.getElementById('input-sobrenome').value = usuario.sobrenome || '';
+        document.getElementById('input-telefone').value = usuario.telefone || '';
+
+        document.getElementById('view-mode').style.display = 'none';
+        document.getElementById('edit-mode').style.display = 'block';
+      });
+
+      document.getElementById('botao-cancelar').addEventListener('click', () => location.reload());
+
+      document.getElementById('botao-salvar').addEventListener('click', async () => {
+        try {
+          const update = {
+            nome: document.getElementById('input-nome').value,
+            sobrenome: document.getElementById('input-sobrenome').value,
+            telefone: document.getElementById('input-telefone').value,
+          };
+
+          await fetch(`http://localhost:1337/api/users/${usuario.id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(update),
+          });
+
+          alert('Dados atualizados!');
+          location.reload();
+        } catch (err) {
+          console.error(err);
+          alert('Erro ao salvar.');
+        }
+      });
+
+      document.getElementById('upload-foto').addEventListener('change', async (event) => {
+        const arquivo = event.target.files[0];
+        if (!arquivo) return;
+
+        const formData = new FormData();
+        formData.append('files', arquivo);
+
+        const res = await fetch('http://localhost:1337/api/upload', {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+
+        const result = await res.json();
+        const fotoId = result[0].id;
+
+        await fetch(`http://localhost:1337/api/users/${usuario.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ foto_perfil: fotoId }),
+        });
+
+        alert('Foto atualizada!');
+        location.reload();
+      });
+
+      document.getElementById('botao-sair').addEventListener('click', () => {
+        localStorage.removeItem('jwt');
+        window.location.href = 'login.html';
+      });
+    </script>
+  </body>
+</html>
