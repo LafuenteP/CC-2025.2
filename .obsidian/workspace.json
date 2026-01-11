@@ -13,6 +13,30 @@
             "state": {
               "type": "image",
               "state": {
+<<<<<<< HEAD
+                "file": "IA/EstudoCodigos/Código A Estrela (GOAT).md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Código A Estrela (GOAT)"
+            }
+          },
+          {
+            "id": "8e56fc639cbe665c",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.10.6"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.10.6"
+            }
+          }
+        ],
+        "currentTab": 1
+=======
                 "file": "Teoria da Computação/Pasted image 20251117224745.png"
               },
               "icon": "lucide-image",
@@ -45,6 +69,7 @@
           }
         ],
         "currentTab": 2
+>>>>>>> 26d27e31a7a0d6c1ae902264f94b07a236275752
       }
     ],
     "direction": "vertical"
@@ -192,6 +217,23 @@
       "bases:Create new base": false
     }
   },
+<<<<<<< HEAD
+  "active": "8e56fc639cbe665c",
+  "lastOpenFiles": [
+    "A Estrela 1.png",
+    "IA/EstudoCodigos/Código Guloso (Melhor Escolha).md",
+    "IA/EstudoCodigos/Código A Estrela (GOAT).md",
+    "IA/EstudoCodigos/IMG's A Estrela",
+    "IA/EstudoCodigos/IMG's Guloso",
+    "IA/EstudoCodigos/IMG's Guloso/Errata 3.png",
+    "IA/EstudoCodigos/IMG's Guloso/Errata 2.png",
+    "IA/EstudoCodigos/IMG's Guloso/Errata 1.png",
+    "Teoria Da Computação/Aula dia 24 de Outubro de 2025.md",
+    "Teoria Da Computação/Lista de Exercícios.md",
+    "Teoria Da Computação/Sem título.jpg",
+    "Teoria Da Computação/Sem título-1.jpg",
+    "Teoria Da Computação",
+=======
   "active": "7d14a12a889db993",
   "lastOpenFiles": [
     "Teoria da Computação/Resolução Lista 1.md",
@@ -199,6 +241,7 @@
     "Teoria da Computação/Pasted image 20251118011138.png",
     "Teoria da Computação/Pasted image 20251118000830.png",
     "Teoria da Computação/Pasted image 20251117224745.png",
+>>>>>>> 26d27e31a7a0d6c1ae902264f94b07a236275752
     "Segurança/Criptografia.md",
     "Segurança/Imagens/Sistema de Criptografia.png",
     "Segurança/Prova 1 Revisão.md",
@@ -211,7 +254,6 @@
     "IA/Cópia_de_Lab03_Lafuente.ipynb",
     "IA/Lab03_Lafuente_Busca_Custo_Uniforme.ipynb",
     "IA",
-    "Nova pasta",
     "Segurança/Imagens/Mecanismos de Segurança.png"
   ]
 }
