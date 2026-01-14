@@ -35,9 +35,7 @@ public class ApiServer {
                 enviarResposta(exchange, 200, gson.toJson(c));
             } 
             else if ("GET".equals(metodo)) {
-                // NOVA FUNCIONALIDADE: Listar Clientes
-                // (Assumindo que ClienteService tem uma lista interna, senão retornamos vazio por enquanto)
-                // OBS: Para funcionar perfeito, adicione um getter no ClienteService (veja abaixo do código)
+                
                 Collection<Cliente> lista = clienteService.getClientes(); 
                 enviarResposta(exchange, 200, gson.toJson(lista));
             }
@@ -59,7 +57,7 @@ public class ApiServer {
             }
         });
 
-        // --- ROTA: RESERVAS (ATUALIZADA COM LISTAGEM) ---
+        // --- ROTA: RESERVAS 
         server.createContext("/reservas", exchange -> {
             addCorsHeaders(exchange);
             String metodo = exchange.getRequestMethod();
@@ -95,7 +93,7 @@ public class ApiServer {
                 }
             }
             else if ("GET".equals(metodo)) {
-                // AGORA SIM: Retorna a lista real de reservas
+                
                 Collection<Reserva> lista = hotelService.getReservas();
                 enviarResposta(exchange, 200, gson.toJson(lista));
             }
@@ -126,4 +124,5 @@ public class ApiServer {
         os.write(bytes);
         os.close();
     }
+
 }
