@@ -110,7 +110,6 @@ def atualizar_tudo():
             preco = f"R$ {q['precoPorNoite']}"
             lista_quartos.insert("", "end", values=(q['numero'], tipo, preco, status))
             
-    # Atualiza Reservas (NOVO!)
     lista_reservas.delete(*lista_reservas.get_children())
     reservas = api_request("/reservas", method='GET')
     if reservas:
@@ -183,5 +182,6 @@ for col in cols_q: lista_quartos.heading(col, text=col); lista_quartos.column(co
 lista_quartos.pack()
 
 ttk.Button(frame_res, text="Atualizar Todas as Tabelas", command=atualizar_tudo).pack(pady=10)
+
 
 root.mainloop()
