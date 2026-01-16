@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>DoaAí - Itens para Doação</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="auth.js"></script>
 </head>
 <body>
     <header>
@@ -81,22 +82,6 @@
             });
         }
         async function setupItensPage() {
-            const token = localStorage.getItem('jwt');
-            const mainMenu = document.getElementById('main-menu');
-            if (token && mainMenu) {
-                try {
-                    const res = await fetch('http://localhost:1337/api/users/me?populate=instituicao', { headers: { Authorization: `Bearer ${token}` } });
-                    const user = await res.json();
-                    const isInstituicao = !!user.instituicao;
-                    const doarLi = Array.from(mainMenu.children).find((li) => li.textContent.trim().includes('Doar'));
-                    if (isInstituicao && doarLi) doarLi.remove();
-                    const perfilLi = document.createElement('li');
-                    perfilLi.innerHTML = `<a href="${isInstituicao ? 'perfil-instituicao.html' : 'perfil.html'}">Seu Perfil</a>`;
-                    mainMenu.appendChild(perfilLi);
-                } catch (err) {
-                    console.error('Erro ao ajustar menu:', err);
-                }
-            }
             try {
                 const catRes = await fetch(`${API_URL}/categorias`);
                 const { data: categorias } = await catRes.json();

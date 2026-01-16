@@ -60,7 +60,7 @@ Aguarde até ver a mensagem de sucesso. O painel do Strapi abrirá automaticamen
 Abra um **NOVO PowerShell/Terminal** (deixe o backend rodando):
 
 ```powershell
-cd frontend
+Z
 npm install -g http-server
 http-server -p 8080
 ```
